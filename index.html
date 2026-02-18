@@ -2,82 +2,50 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GreenPay</title>
-
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <style>
-body {
-  font-family: Arial;
-  text-align: center;
-}
-#map {
-  height: 400px;
-}
-button {
-  padding: 10px;
-  margin-top: 10px;
-}
+body{font-family:Arial;text-align:center;padding:20px;}
+button{padding:10px;margin:10px;background:#2e7d32;color:white;border:none;}
 </style>
 </head>
 
 <body>
 
-<h2>🌳 Daraxt ekish</h2>
+<h2>🌳 Daraxt Ekish</h2>
 
-<select id="tree">
-  <option value="Olma">Olma</option>
-  <option value="O‘rik">O‘rik</option>
-  <option value="Gilos">Gilos</option>
-</select>
+<input id="treeType" placeholder="Daraxt turi"><br>
+<input id="locationText" placeholder="Joy nomi"><br>
 
-<div id="map"></div>
-
-<button onclick="sendTree()">Yuborish</button>
+<button onclick="getLocation()">📍 Joyni tanlash</button>
+<button onclick="sendData()">Yuborish</button>
 
 <script>
-let selectedLat = null;
-let selectedLon = null;
 
-var map = L.map('map').setView([41.31, 69.27], 12);
+let latitude=0;
+let longitude=0;
 
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-).addTo(map);
-
-var marker;
-
-map.on('click', function(e) {
-  selectedLat = e.latlng.lat;
-  selectedLon = e.latlng.lng;
-
-  if(marker) map.removeLayer(marker);
-
-  marker = L.marker([selectedLat, selectedLon])
-  .addTo(map);
+function getLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+latitude=pos.coords.latitude;
+longitude=pos.coords.longitude;
+alert("Joy tanlandi");
 });
-
-function sendTree(){
-
- if(!selectedLat || !selectedLon){
-   alert("Joy tanlanmadi!");
-   return;
- }
-
- const data = {
-   tree_type: document.getElementById("tree").value,
-   latitude: selectedLat,
-   longitude: selectedLon
- };
-
- Telegram.WebApp.sendData(JSON.stringify(data));
- Telegram.WebApp.close();
 }
+
+function sendData(){
+
+const data={
+tree_type:treeType.value,
+location:locationText.value,
+latitude:latitude,
+longitude:longitude
+};
+
+Telegram.WebApp.sendData(JSON.stringify(data));
+Telegram.WebApp.close();
+
+}
+
 </script>
 
 </body>
