@@ -2,149 +2,133 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GreenPay</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Telegram WebApp -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
 body{
-    margin:0;
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-}
-
-.container{
-    padding:20px;
-}
-
-.card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
+    font-family: Arial;
+    padding:15px;
+    background:#f5f5f5;
 }
 
 input, button{
     width:100%;
-    padding:12px;
+    padding:10px;
     margin-top:10px;
-    border-radius:10px;
-    border:none;
-    font-size:16px;
-}
-
-input{
-    background:#334155;
-    color:white;
+    border-radius:8px;
+    border:1px solid #ccc;
 }
 
 button{
-    background:#22c55e;
+    background:#2ecc71;
     color:white;
     font-weight:bold;
+    border:none;
 }
 
 #map{
     height:250px;
-    border-radius:15px;
     margin-top:15px;
-}
-.preview{
-    width:100%;
-    margin-top:10px;
     border-radius:10px;
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
-
-<div class="card">
 <h2>🌳 Daraxt ekish</h2>
 
 <input id="tree_type" placeholder="Daraxt turi">
-<input id="location" placeholder="Joylashuv">
+<input id="location" placeholder="Joy nomi">
 <input type="file" id="image" accept="image/*">
-<img id="preview" class="preview" style="display:none;">
 
-<div id="map" style="height:250px;"></div>
+<div id="map"></div>
+
 <button onclick="sendData()">Yuborish</button>
-</div>
-
-</div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
 
-const map = L.map('map').setView([41.3111, 69.2797], 13);
+document.addEventListener("DOMContentLoaded", function(){
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-}).addTo(map);
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
 
-const API_URL = "https://greenpaybackend-production.up.railway.app";
+    console.log("Telegram:", tg);
 
-let latitude = 41.3111;
-let longitude = 69.2797;
+    window.latitude = 41.3111;
+    window.longitude = 69.2797;
 
-async function sendData(){
+    const map = L.map('map').setView([latitude, longitude], 13);
 
-    const user = tg.initDataUnsafe?.user;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-    if(!user){
-        alert("Telegram ichida oching!");
-        return;
-    }
+    let marker = L.marker([latitude, longitude]).addTo(map);
 
-    const fileInput = document.getElementById("image").files[0];
+    map.on('click', function(e){
+        latitude = e.latlng.lat;
+        longitude = e.latlng.lng;
+        marker.setLatLng(e.latlng);
+    });
 
-    if(!fileInput){
-        alert("Rasm yuklang!");
-        return;
-    }
+    window.sendData = async function(){
 
-    const formData = new FormData();
-    formData.append("user_id", user.id);
-    formData.append("user_name", user.first_name || "User");
-    formData.append("tree_type", document.getElementById("tree_type").value);
-    formData.append("location", document.getElementById("location").value);
-    formData.append("latitude", latitude);
-    formData.append("longitude", longitude);
-    formData.append("file", fileInput);
+        const user = tg.initDataUnsafe?.user;
 
-    try{
-        const res = await fetch(API_URL + "/trees/", {
-            method:"POST",
-            body:formData
-        });
-
-        if(res.ok){
-            alert("Yuborildi!");
-            tg.close();
-        }else{
-            alert("Server xato berdi");
+        if(!user){
+            alert("Telegram ichida oching!");
+            return;
         }
 
-    }catch(e){
-        alert("Backendga ulanib bo‘lmadi");
-        console.log(e);
-    }
-}
+        const file = document.getElementById("image").files[0];
 
+        if(!file){
+            alert("Rasm yuklang!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("user_id", user.id);
+        formData.append("user_name", user.first_name || "User");
+        formData.append("tree_type", document.getElementById("tree_type").value);
+        formData.append("location", document.getElementById("location").value);
+        formData.append("latitude", latitude);
+        formData.append("longitude", longitude);
+        formData.append("file", file);
+
+        try{
+            const res = await fetch("https://greenpaybackend-production.up.railway.app/trees/",{
+                method:"POST",
+                body:formData
+            });
+
+            if(res.ok){
+                alert("Yuborildi!");
+                tg.close();
+            }else{
+                alert("Server xato berdi");
+            }
+
+        }catch(err){
+            alert("Backendga ulanib bo‘lmadi");
+            console.log(err);
+        }
+
+    }
+
+});
 </script>
 
 </body>
 </html>
-
-
-
-
-
