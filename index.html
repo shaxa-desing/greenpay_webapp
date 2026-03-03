@@ -128,6 +128,11 @@ document.getElementById("image").addEventListener("change", function(){
 
 async function sendData(){
 
+    if(!tg.initDataUnsafe || !tg.initDataUnsafe.user){
+        alert("Telegram ichida oching!");
+        return;
+    }
+
     const fileInput = document.getElementById("image").files[0];
 
     if(!fileInput){
@@ -137,27 +142,35 @@ async function sendData(){
 
     const formData = new FormData();
     formData.append("user_id", tg.initDataUnsafe.user.id);
-    formData.append("user_name", tg.initDataUnsafe.user.first_name);
+    formData.append("user_name", tg.initDataUnsafe.user.first_name || "User");
     formData.append("tree_type", document.getElementById("tree_type").value);
     formData.append("location", document.getElementById("location").value);
     formData.append("latitude", latitude);
     formData.append("longitude", longitude);
     formData.append("file", fileInput);
 
-    const res = await fetch(API_URL + "/trees/", {
-        method:"POST",
-        body:formData
-    });
+    try{
+        const res = await fetch(API_URL + "/trees/", {
+            method:"POST",
+            body:formData
+        });
 
-    if(res.ok){
-        alert("Yuborildi!");
-        tg.close();
-    }else{
-        alert("Xatolik!");
+        if(res.ok){
+            alert("Yuborildi!");
+            tg.close();
+        }else{
+            alert("Server xato berdi");
+        }
+
+    }catch(err){
+        alert("Backendga ulanib bo‘lmadi");
+        console.log(err);
     }
 }
+    
 
 </script>
 
 </body>
 </html>
+
