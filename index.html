@@ -81,8 +81,8 @@ button{
 </div>
 
 <script>
-
 const tg = window.Telegram.WebApp;
+tg.ready();
 tg.expand();
 
 const API_URL = "https://greenpaybackend-production.up.railway.app";
@@ -90,45 +90,11 @@ const API_URL = "https://greenpaybackend-production.up.railway.app";
 let latitude = 41.3111;
 let longitude = 69.2797;
 
-const map = L.map('map').setView([latitude, longitude], 13);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap'
-}).addTo(map);
-
-let marker = L.marker([latitude, longitude], {draggable:true}).addTo(map);
-
-marker.on('dragend', function(e){
-    let pos = marker.getLatLng();
-    latitude = pos.lat;
-    longitude = pos.lng;
-});
-
-if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
-        map.setView([latitude, longitude], 15);
-        marker.setLatLng([latitude, longitude]);
-    });
-}
-
-document.getElementById("image").addEventListener("change", function(){
-    const file = this.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            const img = document.getElementById("preview");
-            img.src = e.target.result;
-            img.style.display = "block";
-        }
-        reader.readAsDataURL(file);
-    }
-});
-
 async function sendData(){
 
-    if(!tg.initDataUnsafe || !tg.initDataUnsafe.user){
+    const user = tg.initDataUnsafe?.user;
+
+    if(!user){
         alert("Telegram ichida oching!");
         return;
     }
@@ -141,8 +107,8 @@ async function sendData(){
     }
 
     const formData = new FormData();
-    formData.append("user_id", tg.initDataUnsafe.user.id);
-    formData.append("user_name", tg.initDataUnsafe.user.first_name || "User");
+    formData.append("user_id", user.id);
+    formData.append("user_name", user.first_name || "User");
     formData.append("tree_type", document.getElementById("tree_type").value);
     formData.append("location", document.getElementById("location").value);
     formData.append("latitude", latitude);
@@ -162,15 +128,15 @@ async function sendData(){
             alert("Server xato berdi");
         }
 
-    }catch(err){
+    }catch(e){
         alert("Backendga ulanib bo‘lmadi");
-        console.log(err);
+        console.log(e);
     }
 }
-    
 
 </script>
 
 </body>
 </html>
+
 
