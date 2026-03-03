@@ -84,6 +84,12 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+const map = L.map('map').setView([41.3111, 69.2797], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+}).addTo(map);
+
 const API_URL = "https://greenpaybackend-production.up.railway.app";
 
 let latitude = 41.3111;
@@ -137,6 +143,7 @@ async function sendData(){
 
 </body>
 </html>
+
 
 
 
