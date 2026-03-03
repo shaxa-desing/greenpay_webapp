@@ -4,48 +4,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-body{font-family:Arial;text-align:center;padding:20px;}
-button{padding:10px;margin:10px;background:#2e7d32;color:white;border:none;}
+body {
+    background: #0f172a;
+    font-family: Arial;
+    color: white;
+    padding: 20px;
+}
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+}
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+}
+button {
+    background: #22c55e;
+    color: white;
+    font-weight: bold;
+}
 </style>
 </head>
-
 <body>
 
-<h2>🌳 Daraxt Ekish</h2>
+<div class="card">
+<h2>🌳 Daraxt ekish</h2>
 
-<input id="treeType" placeholder="Daraxt turi"><br>
-<input id="locationText" placeholder="Joy nomi"><br>
-
-<button onclick="getLocation()">📍 Joyni tanlash</button>
+<input id="tree_type" placeholder="Daraxt turi">
+<input id="location" placeholder="Joylashuv">
+<input type="file" id="image" accept="image/*">
 <button onclick="sendData()">Yuborish</button>
+</div>
 
 <script>
+const tg = window.Telegram.WebApp;
+const API_URL = "https://greenpaybackend-production.up.railway.app";
 
-let latitude=0;
-let longitude=0;
+async function sendData() {
 
-function getLocation(){
-navigator.geolocation.getCurrentPosition(pos=>{
-latitude=pos.coords.latitude;
-longitude=pos.coords.longitude;
-alert("Joy tanlandi");
-});
+    const formData = new FormData();
+    formData.append("user_id", tg.initDataUnsafe.user.id);
+    formData.append("user_name", tg.initDataUnsafe.user.first_name);
+    formData.append("tree_type", document.getElementById("tree_type").value);
+    formData.append("location", document.getElementById("location").value);
+    formData.append("latitude", 0);
+    formData.append("longitude", 0);
+    formData.append("file", document.getElementById("image").files[0]);
+
+    await fetch(API_URL + "/trees/", {
+        method: "POST",
+        body: formData
+    });
+
+    tg.close();
 }
-
-function sendData(){
-
-const data={
-tree_type:treeType.value,
-location:locationText.value,
-latitude:latitude,
-longitude:longitude
-};
-
-Telegram.WebApp.sendData(JSON.stringify(data));
-Telegram.WebApp.close();
-
-}
-
 </script>
 
 </body>
