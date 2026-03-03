@@ -1,35 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenPay</title>
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <style>
-body {
-    background: #0f172a;
-    font-family: Arial;
-    color: white;
-    padding: 20px;
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
 }
-.card {
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 15px;
+
+.container{
+    padding:20px;
 }
-input, button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: none;
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
 }
-button {
-    background: #22c55e;
-    color: white;
-    font-weight: bold;
+
+input, button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:none;
+    font-size:16px;
+}
+
+input{
+    background:#334155;
+    color:white;
+}
+
+button{
+    background:#22c55e;
+    color:white;
+    font-weight:bold;
+}
+
+#map{
+    height:250px;
+    border-radius:15px;
+    margin-top:15px;
+}
+.preview{
+    width:100%;
+    margin-top:10px;
+    border-radius:10px;
 }
 </style>
 </head>
 <body>
+
+<div class="container">
 
 <div class="card">
 <h2>🌳 Daraxt ekish</h2>
@@ -37,31 +71,92 @@ button {
 <input id="tree_type" placeholder="Daraxt turi">
 <input id="location" placeholder="Joylashuv">
 <input type="file" id="image" accept="image/*">
+<img id="preview" class="preview" style="display:none;">
+
+<div id="map"></div>
+
 <button onclick="sendData()">Yuborish</button>
 </div>
 
+</div>
+
 <script>
+
 const tg = window.Telegram.WebApp;
+tg.expand();
+
 const API_URL = "https://greenpaybackend-production.up.railway.app";
 
-async function sendData() {
+let latitude = 41.3111;
+let longitude = 69.2797;
+
+const map = L.map('map').setView([latitude, longitude], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap'
+}).addTo(map);
+
+let marker = L.marker([latitude, longitude], {draggable:true}).addTo(map);
+
+marker.on('dragend', function(e){
+    let pos = marker.getLatLng();
+    latitude = pos.lat;
+    longitude = pos.lng;
+});
+
+if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+        map.setView([latitude, longitude], 15);
+        marker.setLatLng([latitude, longitude]);
+    });
+}
+
+document.getElementById("image").addEventListener("change", function(){
+    const file = this.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            const img = document.getElementById("preview");
+            img.src = e.target.result;
+            img.style.display = "block";
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+async function sendData(){
+
+    const fileInput = document.getElementById("image").files[0];
+
+    if(!fileInput){
+        alert("Rasm yuklang!");
+        return;
+    }
 
     const formData = new FormData();
     formData.append("user_id", tg.initDataUnsafe.user.id);
     formData.append("user_name", tg.initDataUnsafe.user.first_name);
     formData.append("tree_type", document.getElementById("tree_type").value);
     formData.append("location", document.getElementById("location").value);
-    formData.append("latitude", 0);
-    formData.append("longitude", 0);
-    formData.append("file", document.getElementById("image").files[0]);
+    formData.append("latitude", latitude);
+    formData.append("longitude", longitude);
+    formData.append("file", fileInput);
 
-    await fetch(API_URL + "/trees/", {
-        method: "POST",
-        body: formData
+    const res = await fetch(API_URL + "/trees/", {
+        method:"POST",
+        body:formData
     });
 
-    tg.close();
+    if(res.ok){
+        alert("Yuborildi!");
+        tg.close();
+    }else{
+        alert("Xatolik!");
+    }
 }
+
 </script>
 
 </body>
