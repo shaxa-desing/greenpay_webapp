@@ -2,75 +2,58 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
 
-<body>
-
-<h3>Rasm yuborish</h3>
-
-<input type="file" id="photo">
-
-<button onclick="send()">Yuborish</button>
-
-<script>
-
-const tg = window.Telegram.WebApp
-tg.ready()
-
-function send(){
-
-    const file = document.getElementById("photo").files[0]
-
-    if(!file){
-
-        alert("Rasm tanlang")
-
-        return
-    }
-
-    tg.sendData("photo_uploaded")
-
-    tg.close()
+<style>
+body{
+font-family:Arial;
+text-align:center;
+padding:30px;
 }
 
-</script>
+button{
+padding:15px;
+font-size:18px;
+border:none;
+background:#2ecc71;
+color:white;
+border-radius:8px;
+width:100%;
+}
+</style>
 
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
 
-<h3>Rasm yuborish</h3>
+<h3>📷 Daraxt rasmini yuboring</h3>
 
-<input type="file" id="photo">
+<input type="file" id="photo" accept="image/*" capture="environment">
 
-<button onclick="send()">Yuborish</button>
+<br><br>
+
+<button onclick="sendPhoto()">Yuborish</button>
 
 <script>
 
 const tg = window.Telegram.WebApp
 tg.ready()
 
-function send(){
+function sendPhoto(){
 
-    const file = document.getElementById("photo").files[0]
+const file = document.getElementById("photo").files[0]
 
-    if(!file){
+if(!file){
+alert("Rasm tanlang")
+return
+}
 
-        alert("Rasm tanlang")
+tg.sendData("photo_ready")
 
-        return
-    }
+tg.close()
 
-    tg.sendData("photo_uploaded")
-
-    tg.close()
 }
 
 </script>
