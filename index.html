@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -11,6 +11,7 @@ body{
 font-family:Arial;
 text-align:center;
 padding:30px;
+background:#f4f4f4;
 }
 
 button{
@@ -19,8 +20,12 @@ font-size:18px;
 border:none;
 background:#2ecc71;
 color:white;
-border-radius:8px;
+border-radius:10px;
 width:100%;
+}
+
+input{
+margin-top:20px;
 }
 </style>
 
@@ -28,7 +33,7 @@ width:100%;
 
 <body>
 
-<h3>📷 Daraxt rasmini yuboring</h3>
+<h2>🌳 Daraxt rasmini yuborish</h2>
 
 <input type="file" id="photo" accept="image/*" capture="environment">
 
@@ -50,7 +55,7 @@ alert("Rasm tanlang")
 return
 }
 
-tg.sendData("photo_ready")
+tg.sendData("photo_taken")
 
 tg.close()
 
